@@ -5,6 +5,23 @@ from scapy.layers.inet import IP
 import threading
 import socket
 import ipaddress
+import json
+import atexit
+
+
+def save_dictionary_to_json(dictionary, filename='cache.json'):
+    """Save a dictionary to a JSON file."""
+    with open(filename, 'w') as file:
+        json.dump(dictionary, file, indent=4)  # indent for pretty printing
+
+
+def load_dictionary_from_json(filename='cache.json'):
+    """Load a dictionary from a JSON file."""
+    try:
+        with open(filename, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}  # Return an empty dictionary if file does not exist
 
 
 class PacketSniffer:
@@ -54,7 +71,7 @@ class PacketSniffer:
 
         # Initialize sniffing state and DNS cache
         self.is_sniffing = False
-        self.dns_cache: dict[str, str] = {}
+        self.dns_cache: dict[str, str] = load_dictionary_from_json()
 
     def get_domain_name(self, ip: str) -> str:
         """
@@ -66,7 +83,6 @@ class PacketSniffer:
 
         if ip in self.dns_cache:
             return self.dns_cache[ip]
-
         try:
             domain_name = socket.gethostbyaddr(ip)[0]
         except socket.herror:
@@ -76,7 +92,6 @@ class PacketSniffer:
                 domain_name = "unknown"
         self.dns_cache[ip] = domain_name
         return domain_name
-
 
     def packet_callback(self, packet) -> None:
         """
@@ -144,4 +159,5 @@ class PacketSniffer:
 # Create the main window and start the application
 root = tk.Tk()
 sniffer = PacketSniffer(root)
+atexit.register(lambda: save_dictionary_to_json(sniffer.dns_cache))
 root.mainloop()
