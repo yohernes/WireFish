@@ -63,15 +63,20 @@ class PacketSniffer:
         """
         domain_name = ""
         address = ipaddress.ip_address(ip)
+
         if ip in self.dns_cache:
             return self.dns_cache[ip]
+
         try:
             domain_name = socket.gethostbyaddr(ip)[0]
-            self.dns_cache[ip] = domain_name
-            return domain_name
         except socket.herror:
-            # If reverse DNS lookup fails, use the IP address as the domain name
-            return "unknown"
+            if address.is_private:
+                domain_name = "unknown local"
+            elif address.is_global:
+                domain_name = "unknown"
+        self.dns_cache[ip] = domain_name
+        return domain_name
+
 
     def packet_callback(self, packet) -> None:
         """
