@@ -138,6 +138,7 @@ class PacketSniffer:
         self.start_button.config(state=tk.DISABLED)
         self.stop_button.config(state=tk.NORMAL)
         self.sniff_thread = threading.Thread(target=self.sniff_packets)
+        self.sniff_thread.daemon = True
         self.sniff_thread.start()
 
     def stop_sniffing(self) -> None:
@@ -155,9 +156,13 @@ class PacketSniffer:
         """
         sniff(prn=self.packet_callback, store=0, stop_filter=lambda x: not self.is_sniffing)
 
+    def close_app(self) -> None:
+        save_dictionary_to_json(self.dns_cache)
+        self.is_sniffing = False
+
 
 # Create the main window and start the application
 root = tk.Tk()
 sniffer = PacketSniffer(root)
-atexit.register(lambda: save_dictionary_to_json(sniffer.dns_cache))
+atexit.register(lambda: sniffer.close_app())
 root.mainloop()
