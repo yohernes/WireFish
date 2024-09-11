@@ -5,13 +5,14 @@ This is a Wireshark clone that also provides Reverse DNS lookup and saves it in 
 ## Documentation
 
 ### Imports and Dependencies
-The script imports necessary modules:
 
-tkinter for the GUI
-scapy.all for packet sniffing
-threading for running the sniffer in a separate thread
-socket and ipaddress for DNS lookups
-A custom MemoryManager module (not shown in the provided code)
+tkinter for the GUI.
+
+scapy for packet sniffing.
+
+threading for running the sniffer in a separate thread.
+
+socket and ipaddress for DNS lookups.
 
 ### PacketSniffer Class
 This is the main class that encapsulates the entire application.
