@@ -1,22 +1,23 @@
 import tkinter as tk
-from tkinter import scrolledtext, font
+from tkinter import scrolledtext, font, ttk
 from scapy.all import sniff
 from scapy.layers.inet import IP
 import threading
 import socket
 import ipaddress
 from MemoryManager import *
+
+
 class PacketSniffer:
     def __init__(self, master):
         self.master = master
-        master.title("Simple Packet Sniffer")
+        master.title("WireFish")
 
         # Set initial window size and minimum size
-        master.geometry("800x600")  # Initial size: 800x600 pixels
-        master.minsize(400, 300)  # Minimum size: 400x300 pixels
+        master.geometry("1000x700")  # Increased initial size
+        master.minsize(600, 400)  # Increased minimum size
 
         # Configure the main window to be resizable
-        # Weight of 1 means this row/column will expand to fill extra space
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, weight=1)
 
@@ -29,16 +30,41 @@ class PacketSniffer:
         # Create a custom font for better readability
         custom_font = font.Font(family="Courier", size=10)
 
-        # Create scrollable text area for displaying packet information
-        self.text_area = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, font=custom_font)
-        self.text_area.grid(row=0, column=0, sticky="nsew")
+        # Create a PanedWindow to separate packet list and content
+        self.paned_window = ttk.PanedWindow(main_frame, orient=tk.VERTICAL)
+        self.paned_window.grid(row=0, column=0, sticky="nsew")
 
-        # Configure color tags for different parts of the packet information
-        self.text_area.tag_configure("src_ip", foreground="blue")
-        self.text_area.tag_configure("dst_ip", foreground="green")
-        self.text_area.tag_configure("proto_tcp", foreground="red")
-        self.text_area.tag_configure("proto_udp", foreground="purple")
-        self.text_area.tag_configure("proto_other", foreground="orange")
+        # Create a frame for the packet list
+        packet_list_frame = ttk.Frame(self.paned_window)
+        self.paned_window.add(packet_list_frame, weight=1)
+
+        # Create a Treeview widget for displaying packet information
+        self.packet_tree = ttk.Treeview(packet_list_frame, columns=("Source", "Destination", "Protocol"),
+                                        show="headings")
+        self.packet_tree.heading("Source", text="Source")
+        self.packet_tree.heading("Destination", text="Destination")
+        self.packet_tree.heading("Protocol", text="Protocol")
+        self.packet_tree.grid(row=0, column=0, sticky="nsew")
+        packet_list_frame.grid_rowconfigure(0, weight=1)
+        packet_list_frame.grid_columnconfigure(0, weight=1)
+
+        # Add scrollbar to the Treeview
+        tree_scrollbar = ttk.Scrollbar(packet_list_frame, orient="vertical", command=self.packet_tree.yview)
+        tree_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.packet_tree.configure(yscrollcommand=tree_scrollbar.set)
+
+        # Bind click event to the Treeview
+        self.packet_tree.bind("<ButtonRelease-1>", self.on_packet_click)
+
+        # Create a frame for packet content
+        packet_content_frame = ttk.Frame(self.paned_window)
+        self.paned_window.add(packet_content_frame, weight=1)
+
+        # Create scrollable text area for displaying packet content
+        self.content_area = scrolledtext.ScrolledText(packet_content_frame, wrap=tk.WORD, font=custom_font)
+        self.content_area.grid(row=0, column=0, sticky="nsew")
+        packet_content_frame.grid_rowconfigure(0, weight=1)
+        packet_content_frame.grid_columnconfigure(0, weight=1)
 
         # Create a frame for buttons
         button_frame = tk.Frame(main_frame)
@@ -54,6 +80,7 @@ class PacketSniffer:
         # Initialize sniffing state and DNS cache
         self.is_sniffing = False
         self.dns_cache: dict[str, str] = load_dictionary_from_json()
+        self.packets = []  # Store captured packets
 
     def get_domain_name(self, ip: str) -> str:
         """
@@ -76,41 +103,33 @@ class PacketSniffer:
         return domain_name
 
     def packet_callback(self, packet) -> None:
-        """
-        Process each captured packet and display its information.
-        This function is called for each packet sniffed.
-        """
         if IP in packet:
             # Extract IP layer information
             ip_src = packet[IP].src
             ip_dst = packet[IP].dst
             proto = packet[IP].proto
 
-            # Determine protocol and assign color tag
+            # Determine protocol
             if proto == 6:
                 proto_name = "TCP"
-                proto_tag = "proto_tcp"
             elif proto == 17:
                 proto_name = "UDP"
-                proto_tag = "proto_udp"
             else:
                 proto_name = "Other"
-                proto_tag = "proto_other"
 
             # Perform reverse DNS lookups
             src_domain = self.get_domain_name(ip_src)
             dst_domain = self.get_domain_name(ip_dst)
 
-            # Display packet information with color coding
-            self.text_area.insert(tk.END, "IP Packet: ", "")
-            self.text_area.insert(tk.END, f"{ip_src} ({src_domain}) ", "src_ip")
-            self.text_area.insert(tk.END, "-> ", "")
-            self.text_area.insert(tk.END, f"{ip_dst} ({dst_domain}) ", "dst_ip")
-            self.text_area.insert(tk.END, "Proto: ", "")
-            self.text_area.insert(tk.END, f"{proto_name}\n", proto_tag)
+            # Add packet to the Treeview
+            packet_id = self.packet_tree.insert("", "end", values=(
+                                                f"{ip_src} ({src_domain})", f"{ip_dst} ({dst_domain})", proto_name))
 
-            # Autoscroll to the bottom of the text area
-            self.text_area.see(tk.END)
+            # Store the packet for later viewing
+            self.packets.append((packet_id, packet))
+
+            # Ensure the latest packet is visible
+            self.packet_tree.see(packet_id)
 
     def start_sniffing(self) -> None:
         """
@@ -141,3 +160,22 @@ class PacketSniffer:
     def close_app(self) -> None:
         save_dictionary_to_json(self.dns_cache)
         self.is_sniffing = False
+
+    # Set initial window size and minimum size
+
+    def on_packet_click(self, event):
+        item = self.packet_tree.selection()[0]
+        packet_index = self.packet_tree.index(item)
+        if 0 <= packet_index < len(self.packets):
+            _, packet = self.packets[packet_index]
+            self.display_packet_content(packet)
+
+    def display_packet_content(self, packet):
+        # Clear previous content
+        self.content_area.delete(1.0, tk.END)
+
+        # Display packet summary
+        self.content_area.insert(tk.END, packet.summary() + "\n\n")
+
+        # Display detailed packet information
+        self.content_area.insert(tk.END, packet.show(dump=True))
