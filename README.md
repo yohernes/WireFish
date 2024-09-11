@@ -1,6 +1,7 @@
 # WireFish
 ## What is this?
 This is a Wireshark clone that also provides Reverse DNS lookup and saves it in a JSON cache (basically making your computer a DNS server). Made using Scapy and Tkinter in python. 
+#### Educational purposes only. Make sure you have permission to sniff a network before using this.
 ## Documentation
 
 ### Imports and Dependencies
