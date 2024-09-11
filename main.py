@@ -161,6 +161,7 @@ class PacketSniffer:
         self.is_sniffing = False
 
 
+
 # Create the main window and start the application
 root = tk.Tk()
 sniffer = PacketSniffer(root)
