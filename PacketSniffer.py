@@ -32,6 +32,14 @@ class PacketSniffer:
         # Create a custom font for better readability
         custom_font = font.Font(family="Courier", size=10)
 
+
+        #TO FIX
+        self.nav_bar = tk.Frame(master)
+        self.nav_bar.grid(padx=10, pady=10)
+
+
+
+
         # Create a PanedWindow to separate packet list and content
         self.paned_window = ttk.PanedWindow(main_frame, orient=tk.VERTICAL)
         self.paned_window.grid(row=0, column=0, sticky="nsew")
