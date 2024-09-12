@@ -7,7 +7,7 @@ def main() -> None:
     """ Create the main window and start the application"""
     root = tk.Tk()
     sniffer = PacketSniffer(root)
-    atexit.register(lambda: sniffer.close_app())
+    atexit.register(sniffer.close_app)
     root.mainloop()
 
 

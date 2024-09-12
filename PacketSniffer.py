@@ -10,7 +10,9 @@ from MemoryManager import *
 
 class PacketSniffer:
     def __init__(self, master):
-        self.master = master
+
+        self.sniff_thread = None
+        self.master: tk.Widget = master
         master.title("WireFish")
 
         # Set initial window size and minimum size
@@ -113,6 +115,28 @@ class PacketSniffer:
         return domain_name
         # known IPs to do
 
+    def start_sniffing(self) -> None:
+        """
+        Start the packet sniffing process in a separate thread.
+        """
+        self.is_sniffing = True
+        self.start_button.config(state=tk.DISABLED)
+        self.stop_button.config(state=tk.NORMAL)
+        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True)
+        self.sniff_thread.start()
+
+    def stop_sniffing(self) -> None:
+        """
+        Stop the packet sniffing process.
+        """
+
+        self.is_sniffing = False
+        self.start_button.config(state=tk.NORMAL)
+        self.stop_button.config(state=tk.DISABLED)
+
+    def sniff_packets(self) -> None:
+        sniff(prn=self.packet_callback, store=0, stop_filter=lambda x: not self.is_sniffing)
+
     def packet_callback(self, packet) -> None:
         if IP in packet:
             # Extract IP layer information
@@ -142,39 +166,6 @@ class PacketSniffer:
             # Ensure the latest packet is visible
             self.packet_tree.see(packet_id)
 
-    def start_sniffing(self) -> None:
-        """
-        Start the packet sniffing process in a separate thread.
-        """
-        self.is_sniffing = True
-        self.start_button.config(state=tk.DISABLED)
-        self.stop_button.config(state=tk.NORMAL)
-        self.sniff_thread = threading.Thread(target=self.sniff_packets)
-        self.sniff_thread.daemon = True
-        self.sniff_thread.start()
-
-    def stop_sniffing(self) -> None:
-        """
-        Stop the packet sniffing process.
-        """
-        self.is_sniffing = False
-        self.start_button.config(state=tk.NORMAL)
-        self.stop_button.config(state=tk.DISABLED)
-
-    def sniff_packets(self) -> None:
-        """
-        Use scapy's sniff function to capture packets.
-        This function runs in a separate thread to keep the GUI responsive.
-        """
-        sniff(prn=self.packet_callback, store=0, stop_filter=lambda x: not self.is_sniffing)
-
-    def close_app(self) -> None:
-        save_dictionary_to_json(self.global_dns_cache, "app_memory/global_DNS_cache.json")
-        save_dictionary_to_json(self.local_dns_cache, "app_memory/local_DNS_cache.json")
-        self.is_sniffing = False
-
-    # Set initial window size and minimum size
-
     def on_packet_click(self, event) -> None:
         item = self.packet_tree.selection()[0]
         packet_index = self.packet_tree.index(item)
@@ -191,3 +182,8 @@ class PacketSniffer:
 
         # Display detailed packet information
         self.content_area.insert(tk.END, packet.show(dump=True))
+
+    def close_app(self) -> None:
+        save_dictionary_to_json(self.global_dns_cache, "app_memory/global_DNS_cache.json")
+        save_dictionary_to_json(self.local_dns_cache, "app_memory/local_DNS_cache.json")
+        self.is_sniffing = False

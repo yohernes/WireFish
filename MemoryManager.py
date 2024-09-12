@@ -21,3 +21,13 @@ def load_dictionary_from_json(filename: str) -> {}:
             return json.load(file)
     except FileNotFoundError:
         return {}  # Return an empty dictionary if file does not exist
+
+
+def delete_global_cache() -> None:
+    with open("app_memory/global_DNS_cache.json", 'w') as file:
+        json.dump(None, file)
+
+
+def delete_local_cache() -> None:
+    with open("app_memory/local_DNS_cache.json", 'w') as file:
+        json.dump(None, file)
