@@ -79,8 +79,10 @@ class PacketSniffer:
 
         # Initialize sniffing state and DNS cache
         self.is_sniffing = False
-        self.dns_cache: dict[str, str] = load_dictionary_from_json()
+        self.dns_cache: dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
         self.packets = []  # Store captured packets
+
+        create_memory_dir()
 
     def get_domain_name(self, ip: str) -> str:
         """
@@ -158,19 +160,19 @@ class PacketSniffer:
         sniff(prn=self.packet_callback, store=0, stop_filter=lambda x: not self.is_sniffing)
 
     def close_app(self) -> None:
-        save_dictionary_to_json(self.dns_cache)
+        save_dictionary_to_json(self.dns_cache, "app_memory/global_DNS_cache.json")
         self.is_sniffing = False
 
     # Set initial window size and minimum size
 
-    def on_packet_click(self, event):
+    def on_packet_click(self, event) -> None:
         item = self.packet_tree.selection()[0]
         packet_index = self.packet_tree.index(item)
         if 0 <= packet_index < len(self.packets):
             _, packet = self.packets[packet_index]
             self.display_packet_content(packet)
 
-    def display_packet_content(self, packet):
+    def display_packet_content(self, packet) -> None:
         # Clear previous content
         self.content_area.delete(1.0, tk.END)
 

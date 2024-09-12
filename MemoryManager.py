@@ -1,13 +1,19 @@
 import json
+import os
 
 
-def save_dictionary_to_json(dictionary, filename='cache.json'):
+def create_memory_dir() ->None:
+    if not os.path.exists("app_memory"):
+        os.mkdir("app_memory")
+
+
+def save_dictionary_to_json(dictionary, filename: str) -> None:
     """Save a dictionary to a JSON file."""
     with open(filename, 'w') as file:
         json.dump(dictionary, file, indent=4)  # indent for pretty printing
 
 
-def load_dictionary_from_json(filename='cache.json'):
+def load_dictionary_from_json(filename: str) -> {}:
     """Load a dictionary from a JSON file."""
     try:
         with open(filename, 'r') as file:
