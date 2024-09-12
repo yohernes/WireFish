@@ -79,7 +79,8 @@ class PacketSniffer:
 
         # Initialize sniffing state and DNS cache
         self.is_sniffing = False
-        self.dns_cache: dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
+        self.global_dns_cache: dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
+        self.local_dns_cache: dict[str, str] = load_dictionary_from_json("app_memory/local_DNS_cache.json")
         self.packets = []  # Store captured packets
 
         create_memory_dir()
@@ -91,18 +92,26 @@ class PacketSniffer:
         """
         domain_name = ""
         address = ipaddress.ip_address(ip)
-
-        if ip in self.dns_cache:
-            return self.dns_cache[ip]
-        try:
-            domain_name = socket.gethostbyaddr(ip)[0]
-        except socket.herror:
-            if address.is_private:
+        if address.is_private:
+            if ip in self.local_dns_cache:
+                return self.local_dns_cache[ip]
+            try:
+                domain_name = socket.gethostbyaddr(ip)[0]
+            except socket.herror:
                 domain_name = "unknown local"
-            elif address.is_global:
+            self.local_dns_cache[ip] = domain_name
+
+        elif address.is_global:
+            if ip in self.global_dns_cache:
+                return self.global_dns_cache[ip]
+            try:
+                domain_name = socket.gethostbyaddr(ip)[0]
+            except socket.herror:
                 domain_name = "unknown"
-        self.dns_cache[ip] = domain_name
+            self.global_dns_cache[ip] = domain_name
+
         return domain_name
+        # known IPs to do
 
     def packet_callback(self, packet) -> None:
         if IP in packet:
@@ -160,7 +169,8 @@ class PacketSniffer:
         sniff(prn=self.packet_callback, store=0, stop_filter=lambda x: not self.is_sniffing)
 
     def close_app(self) -> None:
-        save_dictionary_to_json(self.dns_cache, "app_memory/global_DNS_cache.json")
+        save_dictionary_to_json(self.global_dns_cache, "app_memory/global_DNS_cache.json")
+        save_dictionary_to_json(self.local_dns_cache, "app_memory/local_DNS_cache.json")
         self.is_sniffing = False
 
     # Set initial window size and minimum size

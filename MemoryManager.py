@@ -2,7 +2,8 @@ import json
 import os
 
 
-def create_memory_dir() ->None:
+def create_memory_dir() -> None:
+    """create dir called app_memory to store the caches and maybe more in the future"""
     if not os.path.exists("app_memory"):
         os.mkdir("app_memory")
 
