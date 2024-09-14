@@ -7,7 +7,7 @@ import socket
 import ipaddress
 from MemoryManager import *
 from typing import Dict, List, Any
-
+import ctypes
 
 class PacketSniffer:
     def __init__(self, master: tk.Tk):
@@ -36,8 +36,10 @@ class PacketSniffer:
         self.global_dns_cache: Dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
         self.local_dns_cache: Dict[str, str] = load_dictionary_from_json("app_memory/local_DNS_cache.json")
         self.packets: List[Any] = []  # Store captured packets
-        photo = tk.PhotoImage(file="app_images/logo.png")
-        master.iconphoto(False, photo)
+        logo = tk.PhotoImage(file="app_images/logo.png")
+        # master.iconphoto(False, logo)
+        master.wm_iconbitmap("app_images/logoICO.ico")
+
 
         create_memory_dir()
 
