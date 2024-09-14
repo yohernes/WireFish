@@ -32,7 +32,6 @@ class MainWindow:
         self.setup_main_frame()
         self.setup_settings_panel()
 
-
         self.is_sniffing: bool = False
         self.packets: List[Any] = []  # Store captured packets
 

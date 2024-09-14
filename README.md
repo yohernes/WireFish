@@ -50,11 +50,13 @@ Saves the DNS cache to a JSON file when the application is closed
 ### Key Features
 
 Real-time Packet Display: Captures and displays network packets in real-time.
-Color Coding: Uses different colors for source IP, destination IP, and protocols for better readability.
+
 DNS Caching: Implements a DNS cache to reduce repeated lookups and improve performance.
+
 Threaded Sniffing: Runs the packet sniffing in a separate thread to keep the GUI responsive.
+
 Start/Stop Functionality: Allows users to start and stop the sniffing process.
-Resizable GUI: The main window is resizable, with a minimum size set for usability.
+
 
 ### Usage
 To use this packet sniffer:
