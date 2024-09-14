@@ -36,6 +36,8 @@ class PacketSniffer:
         self.global_dns_cache: Dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
         self.local_dns_cache: Dict[str, str] = load_dictionary_from_json("app_memory/local_DNS_cache.json")
         self.packets: List[Any] = []  # Store captured packets
+        photo = tk.PhotoImage(file="app_images/logo.png")
+        master.iconphoto(False, photo)
 
         create_memory_dir()
 
@@ -46,6 +48,8 @@ class PacketSniffer:
         self.master.grid_rowconfigure(0, weight=0)
         self.master.grid_rowconfigure(1, weight=1)  # Main content row
         self.master.grid_columnconfigure(0, weight=1)
+        self.logo = tk.PhotoImage("app_images/logo")
+
 
     def setup_settings_panel(self):
         self.setting_panel = ttk.Frame(self.master, width=1000, style="Settings.TFrame")
@@ -56,9 +60,11 @@ class PacketSniffer:
         self.setting_panel.grid_propagate(False)
 
         # Add some sample content to the settings panel
-        ttk.Label(self.setting_panel, text="Settings", font=("Arial", 16)).pack(pady=100, padx=40)
-        ttk.Button(self.setting_panel, text="clear local DNS cache", command=delete_local_cache).pack(pady=5)
-        ttk.Button(self.setting_panel, text="clear global DNS cache", command=delete_global_cache).pack(pady=5)
+        ttk.Label(self.setting_panel, text="Settings", font=("Arial", 16)).pack(pady=10, padx=40)
+        ttk.Button(self.setting_panel, text="clear local DNS cache",
+                   command=lambda: [delete_local_cache(), self.local_dns_cache.clear()]).pack(pady=5)
+        ttk.Button(self.setting_panel, text="clear global DNS cache",
+                   command=lambda: [delete_global_cache(), self.global_dns_cache.clear()]).pack(pady=5)
         ttk.Button(self.setting_panel, text="Option 3").pack(pady=5)
 
         # Create a style for the settings frame
