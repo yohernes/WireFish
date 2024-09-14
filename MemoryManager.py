@@ -25,9 +25,11 @@ def load_dictionary_from_json(filename: str) -> {}:
 
 def delete_global_cache() -> None:
     with open("app_memory/global_DNS_cache.json", 'w') as file:
-        json.dump(None, file)
+        json.dump({}, file)
 
 
 def delete_local_cache() -> None:
     with open("app_memory/local_DNS_cache.json", 'w') as file:
-        json.dump(None, file)
+        json.dump({}, file)
+def check_network_change() -> None:
+    return

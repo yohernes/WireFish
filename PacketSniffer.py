@@ -11,6 +11,8 @@ from typing import Dict, List, Any
 
 class PacketSniffer:
     def __init__(self, master: tk.Tk):
+        self.settings_visible = False
+        self.setting_panel = None
         self.stop_button = None
         self.button_frame = None
         self.nav_bar = None
@@ -28,7 +30,7 @@ class PacketSniffer:
 
         self.setup_nav_bar()
         self.setup_main_frame()
-
+        self.setup_settings_panel()
         # Initialize sniffing state and DNS cache
         self.is_sniffing: bool = False
         self.global_dns_cache: Dict[str, str] = load_dictionary_from_json("app_memory/global_DNS_cache.json")
@@ -41,9 +43,27 @@ class PacketSniffer:
         self.master.title("WireFish")
         self.master.geometry("1000x700")
         self.master.minsize(600, 400)
-        self.master.grid_rowconfigure(0, weight=0)  # Nav bar row
+        self.master.grid_rowconfigure(0, weight=0)
         self.master.grid_rowconfigure(1, weight=1)  # Main content row
         self.master.grid_columnconfigure(0, weight=1)
+
+    def setup_settings_panel(self):
+        self.setting_panel = ttk.Frame(self.master, width=1000, style="Settings.TFrame")
+        self.setting_panel.grid(row=0, column=1, rowspan=2, sticky="nsew")
+        self.setting_panel.grid_remove()  # Hide initially
+
+        # Prevent the settings panel from shrinking
+        self.setting_panel.grid_propagate(False)
+
+        # Add some sample content to the settings panel
+        ttk.Label(self.setting_panel, text="Settings", font=("Arial", 16)).pack(pady=100, padx=40)
+        ttk.Button(self.setting_panel, text="clear local DNS cache", command=delete_local_cache).pack(pady=5)
+        ttk.Button(self.setting_panel, text="clear global DNS cache", command=delete_global_cache).pack(pady=5)
+        ttk.Button(self.setting_panel, text="Option 3").pack(pady=5)
+
+        # Create a style for the settings frame
+        style = ttk.Style()
+        style.configure("Settings.TFrame", background="#f0f0f0")
 
     def setup_nav_bar(self):
         self.nav_bar = ttk.Frame(self.master)
@@ -60,7 +80,7 @@ class PacketSniffer:
         self.stop_button.pack(side=tk.LEFT, padx=5)
 
         self.settings_image = tk.PhotoImage(file="app_images/settings_icon.png")
-        self.setting_button = ttk.Button(self.button_frame, image=self.settings_image)
+        self.setting_button = ttk.Button(self.button_frame, image=self.settings_image, command=self.settings_click)
         self.setting_button.pack(side=tk.RIGHT)
 
     def setup_main_frame(self):
@@ -76,6 +96,15 @@ class PacketSniffer:
 
         self.setup_packet_list_frame()
         self.setup_packet_content_frame(custom_font)
+
+    def settings_click(self):
+        if self.settings_visible:
+            self.setting_panel.grid_remove()
+            self.settings_visible = False
+        else:
+            self.setting_panel.grid()
+            self.settings_visible = True
+            self.setting_panel.pack_propagate(False)
 
     def setup_packet_list_frame(self):
         self.packet_list_frame = ttk.Frame(self.paned_window)
