@@ -3,7 +3,6 @@ import subprocess
 from scapy.all import sniff
 import socket
 import ipaddress
-import MemoryManager
 
 
 def get_domain_name(memory, ip: str) -> str:
@@ -37,7 +36,7 @@ def sniff_packets(master) -> None:
     sniff(prn=master.packet_callback, store=0, stop_filter=lambda x: not master.is_sniffing)
 
 
-def get_current_ssid():
+def get_current_ssid() ->str:
     current_os = platform.system()
 
     try:
@@ -59,4 +58,4 @@ def get_current_ssid():
 
     except Exception as e:
         print(f"Error getting SSID: {e}")
-        return None
+        return ""
