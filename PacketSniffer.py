@@ -36,7 +36,7 @@ def sniff_packets(master) -> None:
     sniff(prn=master.packet_callback, store=0, stop_filter=lambda x: not master.is_sniffing)
 
 
-def get_current_ssid() ->str:
+def get_current_ssid() -> str:
     current_os = platform.system()
 
     try:
