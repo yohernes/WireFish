@@ -20,11 +20,10 @@ class MenuWindow:
         self.master.title("WireFish")
         self.master.geometry("1000x700")
         self.master.minsize(600, 400)
+        self.master.iconbitmap("app_images/logoICO.ico")
 
     def open_new_window(self) -> WifiSniffingGUI.MainWindow:
-        # Toplevel object which will be treated as a new window
         new_window = tk.Toplevel(self.master)
-
         sniffer = WifiSniffingGUI.MainWindow(new_window)
         new_window.protocol("WM_DELETE_WINDOW", sniffer.close_app)
         return sniffer

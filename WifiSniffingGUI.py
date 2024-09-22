@@ -9,6 +9,7 @@ from scapy.layers.inet6 import IPv6
 from scapy.layers.l2 import Ether, ARP
 from tkinter import messagebox
 
+
 class MainWindow:
     def __init__(self, master: tk.Toplevel):
         self.memory = Memory()
@@ -37,8 +38,6 @@ class MainWindow:
         self.is_sniffing: bool = False
         self.packets: List[Any] = []  # Store captured packets
 
-        master.iconbitmap("app_images/logoICO.ico")
-
     def configure_window(self):
         self.master.title("WireFish")
         self.master.geometry("1000x700")
@@ -46,6 +45,7 @@ class MainWindow:
         self.master.grid_rowconfigure(0, weight=0)
         self.master.grid_rowconfigure(1, weight=1)  # Main content row
         self.master.grid_columnconfigure(0, weight=1)
+        self.master.iconbitmap("app_images/logoICO.ico")
 
     def setup_settings_panel(self):
         self.setting_panel = ttk.Frame(self.master, width=1000, style="Settings.TFrame")
@@ -392,4 +392,4 @@ class MainWindow:
         self.memory.save_dns_memory()
         self.is_sniffing = False
         if messagebox.askokcancel("Quit", "Do you want to close this window?"):
-            self.master.destroy()  # Close the Toplevel window
+            self.master.destroy()
