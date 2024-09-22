@@ -7,7 +7,7 @@ from typing import List, Any
 import PacketSniffer
 from scapy.layers.inet6 import IPv6
 from scapy.layers.l2 import Ether, ARP
-
+from tkinter import messagebox
 
 class MainWindow:
     def __init__(self, master: tk.Toplevel):
@@ -391,3 +391,5 @@ class MainWindow:
     def close_app(self) -> None:
         self.memory.save_dns_memory()
         self.is_sniffing = False
+        if messagebox.askokcancel("Quit", "Do you want to close this window?"):
+            self.master.destroy()  # Close the Toplevel window
