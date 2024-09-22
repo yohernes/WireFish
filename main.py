@@ -1,13 +1,15 @@
 import tkinter as tk
 import atexit
-from GUI import MainWindow
+import WifiSniffingGUI
+import MenuGUI
 
 
 def main() -> None:
     """ Create the main window and start the application"""
     root = tk.Tk()
-    sniffer = MainWindow(root)
-    atexit.register(sniffer.close_app)
+    main_screen = MenuGUI.MenuWindow(root)
+    # sniffer = WifiSniffingGUI.MainWindow(root)
+    # atexit.register(sniffer.close_app)
     root.mainloop()
 
 

@@ -10,7 +10,7 @@ from scapy.layers.l2 import Ether, ARP
 
 
 class MainWindow:
-    def __init__(self, master: tk.Tk):
+    def __init__(self, master: tk.Toplevel):
         self.memory = Memory()
 
         self.settings_visible = False
