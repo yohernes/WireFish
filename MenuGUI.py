@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-import WifiSniffingGUI
+import SniffingGUI
 
 
 class MenuWindow:
@@ -23,5 +23,5 @@ class MenuWindow:
 
     def open_new_window(self) -> None:
         new_window = tk.Toplevel(self.master)
-        sniffer = WifiSniffingGUI.MainWindow(new_window)
+        sniffer = SniffingGUI.MainWindow(new_window)
         new_window.protocol("WM_DELETE_WINDOW", sniffer.close_app)
