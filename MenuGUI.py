@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-import atexit
 import WifiSniffingGUI
 
 
@@ -18,8 +17,8 @@ class MenuWindow:
 
     def configure_window(self):
         self.master.title("WireFish")
-        self.master.geometry("1000x700")
-        self.master.minsize(600, 400)
+        self.master.geometry("500x350")
+        self.master.minsize(60, 50)
         self.master.iconbitmap("app_images/logoICO.ico")
 
     def open_new_window(self) -> WifiSniffingGUI.MainWindow:

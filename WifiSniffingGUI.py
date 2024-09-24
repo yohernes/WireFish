@@ -389,7 +389,7 @@ class MainWindow:
         self.content_area.insert(tk.END, packet.show(dump=True))
 
     def close_app(self) -> None:
-        self.memory.save_dns_memory()
-        self.is_sniffing = False
         if messagebox.askokcancel("Quit", "Do you want to close this window?"):
+            self.memory.save_dns_memory()
+            self.is_sniffing = False
             self.master.destroy()
