@@ -48,6 +48,8 @@ class Memory:
 
     def check_ssid_delete_cache(self) -> None:
         current_network = PacketSniffer.get_current_ssid()
+        if "SSID" not in self.local_dns_cache:
+            self.local_dns_cache["SSID"] = current_network
         if not self.local_dns_cache["SSID"] == current_network:
             self.delete_local_cache()
             self.local_dns_cache["SSID"] = current_network
