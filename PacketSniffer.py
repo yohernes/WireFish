@@ -88,7 +88,12 @@ def get_current_ssid() -> str:
 
     try:
         if current_os == 'Windows':
-            result = subprocess.run(['netsh', 'wlan', 'show', 'interfaces'], capture_output=True, text=True)
+            result = subprocess.run(
+                ['netsh', 'wlan', 'show', 'interfaces'],
+                capture_output=True,
+                encoding='utf-8',
+                errors='ignore'
+            )
             for line in result.stdout.split('\n'):
                 if 'SSID' in line:
                     return line.split(':')[1].strip()
